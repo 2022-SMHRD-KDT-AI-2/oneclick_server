@@ -10,3 +10,5 @@ const db = require("../models/index");
 const { User, Preset } = db;
 
 const router = express.Router();
+
+module.exports = router;

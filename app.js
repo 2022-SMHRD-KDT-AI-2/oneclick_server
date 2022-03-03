@@ -5,6 +5,8 @@ const logger = require("morgan");
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
+const reviewsRouter = require("./routes/reviews");
+const shopsRouter = require("./routes/shops");
 const { sequelize } = require("./models");
 const cors = require("cors");
 
@@ -31,5 +33,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
+app.use("/review", reviewsRouter);
+app.use("/shop", shopsRouter);
 
 module.exports = app;
