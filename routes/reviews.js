@@ -1,11 +1,9 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-const { Op } = require("@sequelize/core");
 const fs = require("fs");
-const path = require("path");
 const multer = require("multer");
+const { tokenParse } = require("./utils");
 
 dotenv.config();
 
@@ -14,28 +12,35 @@ const { Review, ReviewImage } = db;
 
 const router = express.Router();
 
-fs.readdir("uploads", (error) => {
-  // uploads 폴더 없으면 생성
-  if (error) {
-    fs.mkdirSync("uploads");
-  }
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/uploads/");
+  },
+  filename: (req, file, cb) => {
+    const { shopId } = req.body;
+    const fileName = `${Date.now()}_${shopId}`;
+    cb(null, fileName);
+  },
+});
+const upload = multer({ storage: storage }).single("img");
+
+router.post("/save", (req, res) => {
+  upload(req, res, (err) => {
+    if (err) {
+      return res.json({ success: false, err });
+    }
+    return res.json({
+      success: true,
+    });
+  });
 });
 
-const upload = multer({
-  storage: multer.diskStorage({
-    destination(req, file, cb) {
-      cb(null, `uploads/`);
-    },
-    filename(req, file, cb) {
-      const ext = path.extname(file.originalname);
-      cb(null, path.basename((file.originalname, ext) + Date.now() + ext));
-    },
-  }),
-  limits: { fileSize: 5 * 1024 * 1024 },
+router.get("/img", (req, res) => {
+  const defaultURL = "http:localhost:7501/uploads/";
 });
 
 // 리뷰 등록
-router.post("./review", upload.single("img"), (req, res) => {
+router.post("/", (req, res) => {
   try {
     const { token } = req.header;
     const { email } = jwt.decode(token, process.env.JET_CESRET_KEY);
@@ -59,7 +64,5 @@ router.post("./review", upload.single("img"), (req, res) => {
     });
   } catch (err) {}
 });
-
-// 해당 가게의 모든 리뷰 가져오기
 
 module.exports = router;

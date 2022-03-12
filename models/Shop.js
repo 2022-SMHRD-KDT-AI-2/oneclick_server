@@ -1,108 +1,91 @@
-const Sequelize = require('sequelize')
-const {Model, DataTypes} = Sequelize
+const Sequelize = require("sequelize");
+const { Model, DataTypes } = Sequelize;
 
 module.exports = class Preset extends Model {
-    static init(sequelize) {
-        return super.init(
-            {
-                id: {
-                    type: DataTypes.INTEGER,
-                    primaryKey: true,
-                    allowNull: false,
-                    unique: true
-                },
-                lat: {
-                    type: DataTypes.FLOAT,
-                    allowNull: false
-                },
-                long: {
-                    type: DataTypes.FLOAT,
-                    allowNull: false
-                },
-                address: {
-                    type: DataTypes.STRING(250),
-                    allowNull: false
-                },
-                tell: {
-                    type: DataTypes.STRING(13)
-                },
-                url: {
-                    type: DataTypes.STRING(200)
-                },
-                desc: {
-                    type: DataTypes.STRING(300)
-                },
-                occupied_tables : {
-                    type: DataTypes.INTEGER
-                },
-                tables: {
-                    type: DataTypes.INTEGER
-                },
-                parking: {
-                    type: DataTypes.BOOLEAN
-                },
-                parking_capacity: {
-                    type: DataTypes.INTEGER
-                },
-                title_img_src: {
-                    type: DataTypes.STRING(200)
-                },
-                holiday: {
-                    type: DataTypes.INTEGER
-                },
-                open: {
-                    type: DataTypes.INTEGER
-                },
-                close: {
-                    type: DataTypes.INTEGER
-                },
-                break_start: {
-                    type: DataTypes.INTEGER
-                },
-                break_end: {
-                    type: DataTypes.INTEGER
-                },
-                category1: {
-                    type: DataTypes.STRING(20)
-                },
-                category2: {
-                    type: DataTypes.STRING(20)
-                },
-                category3: {
-                    type: DataTypes.STRING(20)
-                },
-                review_tasty: {
-                    type: DataTypes.INTEGER
-                },
-                review_mood: {
-                    type: DataTypes.INTEGER
-                },
-                review_access: {
-                    type: DataTypes.INTEGER
-                },
-                review_clean: {
-                    type: DataTypes.INTEGER
-                },
-                review_price: {
-                    type: DataTypes.INTEGER
-                },
-                review_count: {
-                    type: DataTypes.INTEGER
-                }
+  static init(sequelize) {
+    return super.init(
+      {
+        id: {
+          type: DataTypes.INTEGER,
+          primaryKey: true,
+          allowNull: false,
+          unique: true,
+        },
+        name: {
+          type: DataTypes.STRING(30),
+          allowNull: false,
+        },
+        lat: {
+          type: DataTypes.FLOAT,
+          allowNull: false,
+        },
+        long: {
+          type: DataTypes.FLOAT,
+          allowNull: false,
+        },
+        address: {
+          type: DataTypes.STRING(250),
+          allowNull: false,
+        },
+        tell: {
+          type: DataTypes.STRING(13),
+        },
+        url: {
+          type: DataTypes.STRING(200),
+        },
+        desc: {
+          type: DataTypes.STRING(300),
+        },
+        occupied_tables: {
+          type: DataTypes.INTEGER,
+        },
+        tables: {
+          type: DataTypes.INTEGER,
+        },
+        parking: {
+          type: DataTypes.INTEGER,
+        },
+        parking_capacity: {
+          type: DataTypes.INTEGER,
+        },
+        title_img_src: {
+          type: DataTypes.STRING(200),
+        },
+        holiday: {
+          type: DataTypes.INTEGER,
+        },
+        opTime: {
+          type: DataTypes.STRING(20),
+        },
+        breakTime: {
+          type: DataTypes.STRING(20),
+        },
+        upperDizName: {
+          type: DataTypes.STRING(20),
+        },
+        middleDizName: {
+          type: DataTypes.STRING(20),
+        },
+        lowerDizName: {
+          type: DataTypes.STRING(20),
+        },
+        detailDizName: {
+          type: DataTypes.STRING(20),
+        },
+      },
+      {
+        timestamps: true,
+        modelName: "Shop",
+        tableName: "Shops",
+        paranoid: false,
+        charset: "utf8",
+        collate: "utf8_general_ci", // 한글 저장
+        sequelize,
+      }
+    );
+  }
 
-            },
-            {
-                timestamps: true,
-                modelName: "Shop",
-                tableName: "Shops",
-                paranoid: false,
-                charset: "utf8",
-                collate: "utf8_general_ci", // 한글 저장
-                sequelize,
-            }
-        );
-    }
-    static associate(db) {
-        db.Shop.belongsTo(db.User)
-    }
+  static associate(db) {
+    db.Shop.belongsTo(db.User);
+  }
 };

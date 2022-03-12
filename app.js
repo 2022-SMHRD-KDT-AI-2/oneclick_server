@@ -19,21 +19,22 @@ sequelize
   })
   .catch(console.error);
 
-app.use(
-  cors({
-    origin: true,
-    credential: true,
-  })
-);
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
+
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-app.use("/review", reviewsRouter);
-app.use("/shop", shopsRouter);
+app.use("/reviews", reviewsRouter);
+app.use("/shops", shopsRouter);
 
 module.exports = app;

@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const { Op } = require("@sequelize/core");
-
+const { tokenParse } = require("./utils");
 dotenv.config();
 
 const db = require("../models/index");
@@ -11,7 +11,7 @@ const { User, Preset } = db;
 
 const router = express.Router();
 
-router.post("/login", async (req, res) => {
+router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ where: { email: email } }).then(
@@ -32,8 +32,20 @@ router.post("/login", async (req, res) => {
                 email: email,
               },
             }
-          );
-          res.json({ success: true, message: "로그인 성공", token: token });
+          ).then(() => {
+            const result = {
+              success: true,
+              message: "로그인 성공",
+            };
+            User.findOne({ where: { email: email } }).then((data) => {
+              result["admin"] = data.admin;
+              Preset.findAll({ where: { useremail: email } }).then((data) => {
+                result["preset"] = data;
+                res.cookie("token", token).json(result);
+                next();
+              });
+            });
+          });
         } else {
           res.json({ success: false, message: "로그인 실패" });
         }
@@ -64,40 +76,30 @@ router.post("/signup", async (req, res, next) => {
   }
 });
 
-// 프리셋 등록
-router.post("/preset", (req, res) => {
+router.get("/logout", (req, res) => {});
+
+// 프리셋 등록 및 반환
+router.post("/preset", async (req, res) => {
   try {
-    const { token } = req.header;
+    const { token } = req.cookies;
+    const email = tokenParse(token);
+    console.log(email);
     const { keyword, category1, category2, category3 } = req.body;
-    const { email } = jwt.decode(token, process.env.JWT_SECRET_KEY);
-    Preset.create({
+
+    await Preset.create({
       UserEmail: email,
       keyword: keyword,
       category1: category1,
       category2: category2,
       category3: category3,
     });
-    res.json({ success: true, message: "프리셋 등록 성공" });
-  } catch (err) {}
-});
 
-// 프리셋 정보 가져오기
-router.get("/preset", (req, res) => {
-  try {
-    const { token } = req.header;
-    if (!token) {
-      // 에러처리
-    } else {
-      const { email } = jwt.decode(token, process.env.JWT_SECRET_KEY);
-      const presets = Preset.findAll({
-        where: {
-          UserEmail: { [Op.eq]: email },
-        },
-      }).then((data) => {
-        res.json({ presets: data });
-      });
-    }
-  } catch (err) {}
+    await Preset.findAll({ where: { useremail: email } }).then((data) => {
+      res.json({ success: true, message: "프리셋 등록 성공", preset: data });
+    });
+  } catch (err) {
+    console.error(err);
+  }
 });
 
 module.exports = router;
