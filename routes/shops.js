@@ -1,6 +1,4 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const { Op } = require("@sequelize/core");
 const axios = require("axios");
@@ -17,14 +15,29 @@ const { Shop } = db;
 
 const router = express.Router();
 
-router.get("/admin", (req, res) => {
-  try {
-    const { id } = req.header;
-    // find where shopid == id
-    //return matched shop
-  } catch (err) {
-    console.error(err);
-  }
+router.post("/keyword", (req, res) => {
+  const { keyword, page, lat, long } = req.body;
+  axios
+    .get("https://apis.openapi.sk.com/tmap/pois", {
+      params: {
+        appKey: appKey,
+        searchKeyword: keyword,
+        resCoordType: "WGS84GEO",
+        page: page,
+        count: 10,
+        searchtypCd: "R",
+        radius: 5,
+        centerLat: lat,
+        centerLon: long,
+        version: 1,
+      },
+    })
+    .then((data) => {
+      res.json({
+        data: data.data.searchPoiInfo.pois,
+        success: true,
+      });
+    });
 });
 
 router.post("/search", (req, res) => {

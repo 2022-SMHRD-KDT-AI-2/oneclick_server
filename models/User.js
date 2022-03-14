@@ -36,6 +36,4 @@ module.exports = class User extends Model {
       }
     );
   }
-
-  static associate(db) {}
 };
