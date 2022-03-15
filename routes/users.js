@@ -16,14 +16,15 @@ router.post("/shop", (req, res) => {
   try {
     const { token } = req.cookies;
     const email = tokenParse(token);
+    User.findOne({ where: { email: email } }).then((res) => console.log(res));
     User.update(
-      { shopId: req.body.id },
+      { shopid: req.body.id },
       {
         where: {
           email: email,
         },
       }
-    ).then(() => {
+    ).then((data) => {
       res.json({ success: true });
     });
   } catch (err) {

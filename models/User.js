@@ -24,6 +24,10 @@ module.exports = class User extends Model {
           allowNull: true,
           unique: true,
         },
+        shopid: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+        },
       },
       {
         timestamps: true,

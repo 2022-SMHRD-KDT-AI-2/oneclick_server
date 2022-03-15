@@ -60,16 +60,16 @@ module.exports = class Preset extends Model {
         breakTime: {
           type: DataTypes.STRING(20),
         },
-        upperDizName: {
+        upperBizName: {
           type: DataTypes.STRING(20),
         },
-        middleDizName: {
+        middleBizName: {
           type: DataTypes.STRING(20),
         },
-        lowerDizName: {
+        lowerBizName: {
           type: DataTypes.STRING(20),
         },
-        detailDizName: {
+        detailBizName: {
           type: DataTypes.STRING(20),
         },
       },
@@ -83,9 +83,5 @@ module.exports = class Preset extends Model {
         sequelize,
       }
     );
-  }
-
-  static associate(db) {
-    db.Shop.belongsTo(db.User);
   }
 };

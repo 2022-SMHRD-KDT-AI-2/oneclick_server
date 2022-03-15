@@ -41,7 +41,7 @@ router.post("/keyword", (req, res) => {
 });
 
 router.post("/search", (req, res) => {
-  const { lat, long } = req.body;
+  const { lat, long, keyword, category } = req.body;
 
   const range = (targetRange * 360) / (earthRadius * 2 * pi);
 
@@ -70,6 +70,7 @@ router.get("/test1", (req, res) => {
     });
 });
 
+// 검색해서 디비저장
 router.get("/boundary", async (req, res) => {
   // from 51
   //35.10928780737578, 126.87626628837687
@@ -113,4 +114,26 @@ router.get("/boundary", async (req, res) => {
   res.json({ success: true });
 });
 
+// 관리자 페이지
+// 선택한 가게의 id로 가게정보를 가져옴
+router.post("/findbyid", (req, res) => {
+  const { id } = req.body;
+  Shop.findOne({
+    where: {
+      id: id,
+    },
+  }).then((data) => {
+    res.json({
+      success: true,
+      data: data,
+    });
+  });
+});
+
+// 관리자페이지
+// 가게 정보를 수정함
+router.post("editinfo", (req, res) => {
+  const { id } = req.body;
+  Shop.update({ where: { id: id } }, {});
+});
 module.exports = router;
