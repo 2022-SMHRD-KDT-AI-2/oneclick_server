@@ -8,6 +8,7 @@ const { tokenParse } = require("./utils");
 dotenv.config();
 
 const db = require("../models/index");
+const ShopMenu = require("../models/ShopMenu");
 const { Review, ReviewImage } = db;
 
 const router = express.Router();
@@ -17,12 +18,11 @@ const storage = multer.diskStorage({
     cb(null, "public/uploads/");
   },
   filename: (req, file, cb) => {
-    const { shopId } = req.body;
-    const fileName = `${Date.now()}_${shopId}`;
+    const fileName = `${Date.now()}_${file.originalname}`;
     cb(null, fileName);
   },
 });
-const upload = multer({ storage: storage }).single("img");
+const upload = multer({ storage: storage });
 
 router.post("/save", (req, res) => {
   upload(req, res, (err) => {
@@ -40,15 +40,15 @@ router.get("/img", (req, res) => {
 });
 
 // 리뷰 등록
-router.post("/", (req, res) => {
+router.post("/", upload.single("img"), (req, res) => {
   try {
-    const { token } = req.header;
-    const { email } = jwt.decode(token, process.env.JET_CESRET_KEY);
-    const { shopId, comment, tasty, acessibility, mood, price, cleanliness } =
+    const { cookie } = req.headers;
+    const email = tokenParse(cookie);
+    const { shopId, comment, tasty, price, cleanliness, acessibility, mood } =
       req.body;
-
     Review.create({
-      shopid: shopId,
+      UserEmail: email,
+      ShopId: shopId,
       useremail: email,
       comment: comment,
       tasty: tasty,
@@ -58,11 +58,46 @@ router.post("/", (req, res) => {
       cleanliness: cleanliness,
     });
 
-    ReviewImage.create({
-      shopId: shopId,
-      src: `/img/${req.file.filename}`,
+    if (req.file) {
+      ReviewImage.create({
+        ShopId: shopId,
+        src: `/uploads/${req.file.filename}`,
+      });
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.json({ success: false });
+  }
+});
+
+router.get("/:id", (req, res) => {
+  const target = req.params.id;
+  Review.findAll({
+    where: {
+      ShopId: target,
+    },
+  }).then((review) => {
+    ReviewImage.findAll({
+      where: {
+        ShopId: target,
+      },
+    }).then((image) => {
+      ShopMenu.findAll({
+        where: {
+          ShopId: target,
+        },
+      }).then((menu) => {
+        res.json({
+          success: true,
+          review: review,
+          reviewImage: image,
+          menu: menu,
+        });
+      });
     });
-  } catch (err) {}
+  });
 });
 
 module.exports = router;

@@ -13,20 +13,16 @@ module.exports = class User extends Model {
         },
         password: {
           type: DataTypes.STRING(100),
-          allowNull: false, // 필수
+          allowNull: true,
         },
         admin: {
           type: DataTypes.BOOLEAN,
-          allowNull: false,
+          allowNull: true,
         },
         token: {
           type: DataTypes.STRING(200),
           allowNull: true,
           unique: true,
-        },
-        shopid: {
-          type: DataTypes.INTEGER,
-          allowNull: true,
         },
       },
       {
@@ -39,5 +35,9 @@ module.exports = class User extends Model {
         sequelize,
       }
     );
+  }
+
+  static associate(db) {
+    db.User.belongsTo(db.Shop);
   }
 };

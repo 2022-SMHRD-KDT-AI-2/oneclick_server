@@ -29,48 +29,59 @@ module.exports = class Preset extends Model {
         },
         tell: {
           type: DataTypes.STRING(13),
+          allowNull: true,
         },
         url: {
           type: DataTypes.STRING(200),
+          allowNull: true,
         },
         desc: {
           type: DataTypes.STRING(300),
+          allowNull: true,
         },
         occupied_tables: {
           type: DataTypes.INTEGER,
+          allowNull: true,
         },
         tables: {
           type: DataTypes.INTEGER,
+          allowNull: true,
         },
         parking: {
           type: DataTypes.INTEGER,
+          allowNull: true,
         },
         parking_capacity: {
           type: DataTypes.INTEGER,
+          allowNull: true,
         },
-        title_img_src: {
+        title_img: {
           type: DataTypes.STRING(200),
+          allowNull: true,
         },
         holiday: {
           type: DataTypes.INTEGER,
+          allowNull: true,
         },
         opTime: {
           type: DataTypes.STRING(20),
+          allowNull: true,
         },
         breakTime: {
           type: DataTypes.STRING(20),
+          allowNull: true,
         },
         upperBizName: {
           type: DataTypes.STRING(20),
+          allowNull: true,
         },
         middleBizName: {
           type: DataTypes.STRING(20),
+          allowNull: true,
         },
         lowerBizName: {
           type: DataTypes.STRING(20),
-        },
-        detailBizName: {
-          type: DataTypes.STRING(20),
+          allowNull: true,
         },
       },
       {

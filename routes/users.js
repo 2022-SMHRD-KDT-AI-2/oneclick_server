@@ -12,6 +12,7 @@ const { User, Preset } = db;
 const router = express.Router();
 
 /*update shopid in user table*/
+// complete
 router.post("/shop", (req, res) => {
   try {
     const { token } = req.cookies;
@@ -24,14 +25,19 @@ router.post("/shop", (req, res) => {
           email: email,
         },
       }
-    ).then((data) => {
-      res.json({ success: true });
-    });
+    )
+      .then((data) => {
+        res.json({ success: true });
+      })
+      .catch((err) => {
+        res.json({ success: false });
+      });
   } catch (err) {
     res.json({ success: false, message: err });
   }
 });
 
+// complete
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -69,30 +75,26 @@ router.post("/login", async (req, res) => {
       }
     });
   } catch (err) {
-    res.json({ success: false, message: err });
+    res.json({ success: false });
   }
 });
 
+// complete
 router.post("/signup", async (req, res, next) => {
   try {
     const { email, password, admin } = req.body;
-    await User.findOrCreate({
-      where: {
-        email: email,
-      },
-      default: {
-        email: email,
-        password: await bcrypt.hashSync(password, 10),
-        admin: admin,
-      },
-    }).then(() => {
-      res.json({ success: true });
+    await User.create({
+      email: email,
+      password: bcrypt.hashSync(password, 10),
+      admin: admin,
     });
+    res.json({ success: true });
   } catch (err) {
     res.json({ success: false, message: err });
   }
 });
 
+// complete
 router.get("/logout", (req, res) => {
   try {
     res.clearCookie("token", { path: "/" }).json({ success: true });
@@ -102,6 +104,7 @@ router.get("/logout", (req, res) => {
 });
 
 // 프리셋 등록 및 반환
+
 router.post("/preset", async (req, res) => {
   try {
     const { token } = req.cookies;

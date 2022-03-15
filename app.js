@@ -9,6 +9,7 @@ const reviewsRouter = require("./routes/reviews");
 const shopsRouter = require("./routes/shops");
 const { sequelize } = require("./models");
 const cors = require("cors");
+const fs = require("fs");
 
 const app = express();
 
@@ -23,7 +24,9 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
-app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(
+  cookieParser(process.env.COOKIE_SECRET, { sameSite: "none", secure: true })
+);
 
 app.use(
   cors({
@@ -31,6 +34,17 @@ app.use(
     credentials: true,
   })
 );
+
+app.get("/uploads/:filename", (req, res) => {
+  console.log(req.params);
+  fs.readFile("/uploads/" + req.params.filename, (err, data) => {
+    console.log(data);
+    res.writeHead(200, {
+      "Content-Type": `text/html`,
+    });
+    res.end(data);
+  });
+});
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
