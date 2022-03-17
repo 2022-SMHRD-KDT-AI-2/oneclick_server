@@ -48,7 +48,7 @@ module.exports = class Preset extends Model {
           allowNull: true,
         },
         parking: {
-          type: DataTypes.INTEGER,
+          type: DataTypes.BOOLEAN,
           allowNull: true,
         },
         parking_capacity: {

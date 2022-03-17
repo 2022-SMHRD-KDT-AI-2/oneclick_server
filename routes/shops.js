@@ -51,25 +51,48 @@ router.post("/keyword", (req, res) => {
 router.post("/search", (req, res) => {
   try {
     const { lat, long, keyword, category } = req.body;
-
-    //search boundary
     const range = (targetRange * 360) / (earthRadius * 2 * pi);
-
-    Shop.findAll({
-      where: {
-        [Op.and]: {
-          lat: { [Op.between]: [lat - range, lat + range] },
-          long: { [Op.between]: [long - range, long + range] },
+    console.log(category);
+    if (!category) {
+      Shop.findAll({
+        where: {
+          [Op.and]: {
+            lat: { [Op.between]: [lat - range, lat + range] },
+            long: { [Op.between]: [long - range, long + range] },
+          },
         },
-      },
-    }).then((shop) => {
-      res.json({ shopData: shop });
-    });
+      }).then((shop) => {
+        res.json({ shopData: shop });
+      });
+    } else {
+      Shop.findAll({
+        where: {
+          [Op.and]: [
+            { lat: { [Op.between]: [lat - range, lat + range] } },
+            { long: { [Op.between]: [long - range, long + range] } },
+            { upperBizName: { [Op.like]: `%${category}%` } },
+          ],
+        },
+      }).then((shop) => {
+        res.json({ shopData: shop });
+      });
+    }
   } catch (err) {
     res.json({ success: false });
   }
 });
-
+router.post("/update", (req, res) => {
+  const { name, upperBizName } = req.body;
+  Shop.update(
+    {
+      upperBizName: upperBizName,
+    },
+    { where: { name: name } }
+  ).then(() => {
+    res.json({ success: true });
+  });
+});
+router.get("/detail", (req, res) => {});
 // 검색해서 디비저장
 router.get("/boundary", async (req, res) => {
   // from 51
@@ -93,21 +116,36 @@ router.get("/boundary", async (req, res) => {
         const data = res.data.searchPoiInfo.pois.poi;
 
         data.forEach((item) => {
-          const insertData = {
-            id: item.id,
-            name: item.name,
-            tell: item.telNo,
-            lat: item.noorLat,
-            long: item.noorLon,
-            parking: item.parkFlag ? true : false,
-            address: `${item.upperAddrName} ${item.middleAddrName} ${item.roadName} ${item.buildingNo1}-${item.buildingNo2}`,
-          };
-          Shop.findOrCreate({
-            where: {
-              id: item.id,
-            },
-            defaults: insertData,
-          });
+          const {
+            id,
+            name,
+            telNo,
+            frontLat,
+            frontLon,
+            parkFlag,
+            upperAddrName,
+            middleAddrName,
+            roadName,
+            buildingNo1,
+            buildingNo2,
+          } = item;
+          if (!name.match("주차장")) {
+            const insertData = {
+              id: id,
+              name: name,
+              tell: telNo,
+              lat: frontLat,
+              long: frontLon,
+              parking: parkFlag === 1 ? true : false,
+              address: `${upperAddrName} ${middleAddrName} ${roadName} ${buildingNo1}-${buildingNo2}`,
+            };
+            Shop.findOrCreate({
+              where: {
+                id: item.id,
+              },
+              defaults: insertData,
+            });
+          }
         });
         console.log("end");
       });
@@ -146,11 +184,12 @@ router.post("/editinfo", upload.single("img"), (req, res) => {
   try {
     const { id } = req.body;
     const data = req.body;
+    if (req.file) {
+      data["title_img"] = `/uploads/${req.file.filename}`;
+    }
     Shop.update(
       {
         ...data,
-        title_img: `/uploads/${req.file.filename}`,
-        occupied_tables: 0,
       },
       { where: { id: id } }
     ).then(() => {
